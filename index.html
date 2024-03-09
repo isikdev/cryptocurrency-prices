@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency Prices</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">Cryptocurrency Prices</h1>
+        <div class="row">
+            <!-- Блок для отображения цен криптовалют -->
+            <div class="col-md-8">
+                <ul class="list-group" id="cryptoPrices"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключение jQuery и скрипта для получения цен криптовалют -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        // Функция для получения и обновления цен криптовалют
+        function updateCryptoPrices() {
+            // Запрос к API CoinGecko для получения цен
+            $.ajax({
+                url: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,binancecoin,cardano,dogecoin,polkadot,uniswap,litecoin,chainlink,bitcoin-cash,stellar,usd-coin,vechain,solana,filecoin,tron,eos,aave,ethereum-classic&vs_currencies=usd',
+                method: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    // Очищаем список перед обновлением
+                    $('#cryptoPrices').empty();
+                    // Добавляем цены каждой криптовалюты в список
+                    for (var currency in response) {
+                        // Получаем вчерашнюю цену для сравнения
+                        var yesterdayPrice = getYesterdayPrice(currency);
+                        // Получаем текущую цену
+                        var currentPrice = response[currency].usd.toFixed(2);
+                        // Вычисляем процентное изменение
+                        var changePercentage = ((currentPrice - yesterdayPrice) / yesterdayPrice * 100).toFixed(2);
+                        // Определяем цвет индикатора
+                        var indicatorColor = changePercentage >= 0 ? 'text-success' : 'text-danger';
+                        // Отображаем процентное изменение
+                        var changeIndicator = changePercentage >= 0 ? '▲' : '▼';
+                        // Добавляем цену и индикатор в список
+                        $('#cryptoPrices').append('<li class="list-group-item">' + currency.toUpperCase() + ': $' + currentPrice +
+                            ' <span class="' + indicatorColor + '">(' + changeIndicator + ' ' + Math.abs(changePercentage) + '%)</span></li>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching crypto prices:', error);
+                }
+            });
+        }
+
+        // Функция для получения вчерашней цены криптовалюты
+        function getYesterdayPrice(currency) {
+            // Здесь должен быть код для получения вчерашней цены, но для простоты примера мы будем возвращать случайное значение
+            return Math.random() * 10000;
+        }
+
+        // Обновляем цены криптовалют каждые 10 секунд
+        setInterval(updateCryptoPrices, 1000);
+
+        // Вызываем функцию в первый раз для начальной загрузки данных
+        updateCryptoPrices();
+    </script>
+</body>
+</html>
